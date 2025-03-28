@@ -1,0 +1,47 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 10
+      rampTo: 50
+      name: "Ramp up load"
+    - duration: 180
+      arrivalRate: 50
+      name: "Sustained load"
+
+scenarios:
+  - name: "API Flow"
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "sample1@gmail.com"
+            password: "1234"
+          capture:
+            - json: "$.token"
+              as: "userToken"
+      
+      - log: "Captured token: {{ userToken }}"
+      
+      - get:
+          url: "/api/transactions"
+          headers:
+            Authorization: "Bearer {{ userToken }}"
+      
+      - get:
+          url: "/api/budgets"
+          headers:
+            Authorization: "Bearer {{ userToken }}"
+      
+      - get:
+          url: "/api/goals"
+          headers:
+            Authorization: "Bearer {{ userToken }}"
+      
+      - get:
+          url: "/api/reports/trends"
+          headers:
+            Authorization: "Bearer {{ userToken }}"
